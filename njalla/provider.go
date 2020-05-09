@@ -1,6 +1,8 @@
 package njalla
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -9,8 +11,9 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"api_token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("NJALLA_API_TOKEN", nil),
 				Description: "Njalla API token",
 			},
 		},
@@ -22,11 +25,16 @@ func Provider() *schema.Provider {
 }
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
-	token := d.Get("api_token").(string)
+	if v, ok := d.GetOk("api_token"); ok {
+		token := v.(string)
+		config := Config{
+			Token: token,
+		}
 
-	config := Config{
-		Token: token,
+		return &config, nil
 	}
 
-	return &config, nil
+	// Reaching here means the token wasn't given through the Terraform
+	// config NOR environment variable (`DefaultFunc`).
+	return nil, fmt.Errorf("Missing required API token for provider Njalla")
 }
