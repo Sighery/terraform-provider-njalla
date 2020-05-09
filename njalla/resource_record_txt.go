@@ -41,6 +41,10 @@ func resourceRecordTXT() *schema.Resource {
 				Required: true,
 			},
 		},
+
+		Importer: &schema.ResourceImporter{
+			State: resourceRecordTXTImport,
+		},
 	}
 }
 
@@ -134,4 +138,36 @@ func resourceRecordTXTDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceRecordTXTImport(
+	d *schema.ResourceData, m interface{},
+) ([]*schema.ResourceData, error) {
+	domain, id, err := parseImportID(d.Id())
+	if err != nil {
+		return nil, err
+	}
+
+	config := m.(*Config)
+
+	records, err := gonjalla.ListRecords(config.Token, domain)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"Reading records for domain %s failed: %s", domain, err.Error(),
+		)
+	}
+
+	for _, record := range records {
+		if id == record.ID {
+			d.SetId(fmt.Sprintf("%d", id))
+			d.Set("domain", domain)
+			d.Set("name", record.Name)
+			d.Set("ttl", record.TTL)
+			d.Set("content", record.Content)
+
+			return []*schema.ResourceData{d}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Couldn't find record %d for domain %s", id, domain)
 }
