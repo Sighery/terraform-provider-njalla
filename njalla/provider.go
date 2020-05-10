@@ -19,6 +19,7 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"njalla_record_txt": resourceRecordTXT(),
+			"njalla_record_a": resourceRecordA(),
 		},
 		ConfigureFunc: configureProvider,
 	}
