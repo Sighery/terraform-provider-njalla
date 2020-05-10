@@ -10,8 +10,6 @@ import (
 	"github.com/Sighery/gonjalla"
 )
 
-const recordType string = "TXT"
-
 func resourceRecordTXT() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRecordTXTCreate,
@@ -54,7 +52,7 @@ func resourceRecordTXTCreate(d *schema.ResourceData, m interface{}) error {
 	domain := d.Get("domain").(string)
 
 	record := gonjalla.Record{
-		Type:    recordType,
+		Type:    "TXT",
 		Name:    d.Get("name").(string),
 		Content: d.Get("content").(string),
 		TTL:     d.Get("ttl").(int),
@@ -107,7 +105,7 @@ func resourceRecordTXTUpdate(d *schema.ResourceData, m interface{}) error {
 	updateRecord := gonjalla.Record{
 		ID:      id,
 		Name:    d.Get("name").(string),
-		Type:    recordType,
+		Type:    "TXT",
 		Content: d.Get("content").(string),
 		TTL:     d.Get("ttl").(int),
 	}
