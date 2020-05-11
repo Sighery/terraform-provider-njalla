@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run acceptance and unit tests
+        env:
+          TF_ACC: true
+          NJALLA_TESTACC_DOMAIN: ${{ secrets.NJALLA_TESTACC_DOMAIN }}
+          NJALLA_API_TOKEN: ${{ secrets.NJALLA_API_TOKEN }}
+        run: go test -v ./...
+
+      - name: Get version
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build provider
+        run: >
+          go build -o
+          terraform-provider-njalla_${{ steps.get_version.outputs.VERSION }}
+
+      - name: Build release tarball
+        run: >
+          tar -czf ${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
+          terraform-provider-njalla_v* LICENSE README.md
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: >
+            ${{ contains(github.ref, 'alpha') ||
+                contains(github.ref, 'beta') }}
+
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: |
+            ./${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
+          asset_name: |
+            ${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
+          asset_content_type: application/gzip
