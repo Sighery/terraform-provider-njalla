@@ -12,5 +12,9 @@ jobs:
       - name: Install dependencies
         run: go get
 
-      - name: Run tests
+      - name: Run acceptance and unit tests
+        env:
+          TF_ACC: true
+          NJALLA_TESTACC_DOMAIN: ${{ secrets.NJALLA_TESTACC_DOMAIN }}
+          NJALLA_API_TOKEN: ${{ secrets.NJALLA_API_TOKEN }}
         run: go test -v ./...
