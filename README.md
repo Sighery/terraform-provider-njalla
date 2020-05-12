@@ -12,8 +12,7 @@ the `gonjalla` package.
 
 ## Installing
 
-Currently this provider isn't available in any distribution. You'll have to
-build and install from source.
+Currently this provider isn't available in any distribution's repositories.
 
 ### Source
 
@@ -21,6 +20,26 @@ Make sure you have [Go][Golang] installed.
 
 ```bash
 go build -o terraform-provider-njalla_v0.1.0
+# Third-party Terraform plugins must be installed to this location
+mkdir -p ~/.terraform.d/plugins
+mv terraform-provider-njalla_v0.1.0 ~/.terraform.d/plugins/.
+```
+
+### Releases
+
+There's a [Github Action set up to handle releases][Action Release] on tag
+pushes. This Action currently builds and publishes the following binaries:
+
+* `linux_amd64`
+
+If you happen to run a system the Action currently builds for, you can go into
+the [Releases tab][terraform-provider-njalla Releases] and download the
+`.tar.gz` file for your system. Inside you'll find the built binary, along
+with the LICENSE and README.
+
+```bash
+tar -xvf v0.1.0_linux_amd64.tar.gz
+# Third-party Terraform plugins must be installed to this location
 mkdir -p ~/.terraform.d/plugins
 mv terraform-provider-njalla_v0.1.0 ~/.terraform.d/plugins/.
 ```
@@ -292,3 +311,5 @@ TF_ACC=true go test -v ./...
 [Terraform provider acceptance tests documentation]: https://www.terraform.io/docs/extend/testing/acceptance-tests/index.html
 [Terraform provider acceptance tests article]: https://medium.com/spaceapetech/creating-a-terraform-provider-part-2-1346f89f082c
 [Action Test]: .github/workflows/test.yml
+[Action Release]: .github/workflows/release.yml
+[terraform-provider-njalla releases]: https://github.com/Sighery/terraform-provider-njalla/releases
