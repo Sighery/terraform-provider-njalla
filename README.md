@@ -14,6 +14,13 @@ the `gonjalla` package.
 
 Currently this provider isn't available in any distribution's repositories.
 
+### Arch Linux (and derivatives)
+
+Even though this package isn't in the official Arch Linux repositories (nor
+the AUR), I maintain my own PKGBUILD and the compiled packages are in my Arch
+Linux repository. More information in the
+[terraform-provider-njalla-pkgbuild repository][terraform-provider-njalla-pkgbuild].
+
 ### Source
 
 Make sure you have [Go][Golang] installed.
@@ -300,6 +307,7 @@ TF_ACC=true go test -v ./...
 [Njalla]: https://njal.la
 [Njalla API]: https://njal.la/api/
 [gonjalla package]: https://github.com/Sighery/gonjalla
+[terraform-provider-njalla-pkgbuild]: https://github.com/Sighery/terraform-provider-njalla-pkgbuild
 [Golang]: https://golang.org/
 [installing Terraform plugins]: https://www.terraform.io/docs/plugins/basics.html#installing-plugins
 [gonjalla variable ValidTTL]: https://pkg.go.dev/github.com/Sighery/gonjalla?tab=doc#pkg-variables
