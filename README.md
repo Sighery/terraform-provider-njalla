@@ -162,6 +162,7 @@ resource njalla_record_mx example-mx {
   domain = "example.com"
   name = "example-name"
   ttl = 10800
+  priority = 10
   content = "example-content"
 }
 ```
