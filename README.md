@@ -62,6 +62,7 @@ That means that currently only the following resources are implemented:
 * AAAA record
 * TXT record
 * MX record
+* CNAME record
 
 If you have a need for any other resource, please feel free to contribute to
 both the `gonjalla` and this repository.
@@ -179,6 +180,28 @@ resource njalla_record_mx example-mx {
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
 * `priority` - (Required) Priority for the record. Value must be one of
   [gonjalla `ValidPriority`][gonjalla variable ValidPriority].
+* `content` - (Required) Content for the record.
+
+### Record CNAME
+
+#### Basic
+
+```terraform
+resource njalla_record_cname example-cname {
+  domain = "example.com"
+  name = "example-name"
+  ttl = 10800
+  content = "example-website.com"
+}
+```
+
+#### Argument Reference
+
+* `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
+* `name` - (Optional) Name for the record. Default is `@`.
+* `ttl` - (Required) TTL for the record. Value must be one of
+  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
 * `content` - (Required) Content for the record.
 
 ### Importing existing resources
