@@ -106,6 +106,7 @@ resource njalla_record_a example-a {
 #### Argument Reference
 
 * `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
 * `name` - (Optional) Name for the record. Default is `@`.
 * `ttl` - (Required) TTL for the record. Value must be one of
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
@@ -127,6 +128,7 @@ resource njalla_record_aaaa example-aaaa {
 #### Argument Reference
 
 * `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
 * `name` - (Optional) Name for the record. Default is `@`.
 * `ttl` - (Required) TTL for the record. Value must be one of
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
@@ -148,6 +150,7 @@ resource njalla_record_txt example-txt {
 #### Argument Reference
 
 * `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
 * `name` - (Optional) Name for the record. Default is `@`.
 * `ttl` - (Required) TTL for the record. Value must be one of
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
@@ -170,6 +173,7 @@ resource njalla_record_mx example-mx {
 #### Argument Reference
 
 * `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
 * `name` - (Optional) Name for the record. Default is `@`.
 * `ttl` - (Required) TTL for the record. Value must be one of
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
