@@ -64,6 +64,7 @@ That means that currently only the following resources are implemented:
 * MX record
 * CNAME record
 * CAA record
+* PTR record
 
 If you have a need for any other resource, please feel free to contribute to
 both the `gonjalla` and this repository.
@@ -227,6 +228,28 @@ resource njalla_record_caa example-caa {
   [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
 * `content` - (Required) Content for the record. Value must follow the
   [RFC 8659][]'s syntax from point 4.
+
+### Record PTR
+
+#### Basic
+
+```terraform
+resource njalla_record_ptr example-ptr {
+  domain = "example.com"
+  name = "example-name"
+  ttl = 10800
+  content = "example-content"
+}
+```
+
+#### Argument Reference
+
+* `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
+* `name` - (Optional) Name for the record. Default is `@`.
+* `ttl` - (Required) TTL for the record. Value must be one of
+  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
+* `content` - (Required) Content for the record.
 
 ### Importing existing resources
 
