@@ -311,7 +311,7 @@ resource njalla_record_txt test_empty_name {
 func testAccCheckRecordTXTInvalidTTL() string {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 	return fmt.Sprintf(`
-resource njalla_record_txt test_empty_name {
+resource njalla_record_txt test_invalid_ttl {
   domain = %q
   name = "testacc5-txt-invalidttl-name"
   ttl = 999

@@ -346,7 +346,7 @@ resource njalla_record_mx test_empty_name {
 func testAccCheckRecordMXInvalidTTL() string {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 	return fmt.Sprintf(`
-resource njalla_record_mx test_empty_name {
+resource njalla_record_mx test_invalid_ttl {
   domain = %q
   name = "testacc5-mx-invalidttl-name"
   ttl = 999
@@ -359,12 +359,12 @@ resource njalla_record_mx test_empty_name {
 func testAccCheckRecordMXInvalidPriority() string {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 	return fmt.Sprintf(`
-resource njalla_record_mx test_empty_name {
+resource njalla_record_mx test_invalid_priority {
   domain = %q
-  name = "testacc5-mx-invalidttl-name"
+  name = "testacc6-mx-invalidpriority-name"
   ttl = 10800
   priority = 999
-  content = "testacc5-mx-invalidttl-content"
+  content = "testacc6-mx-invalidpriority-content"
 }
 `, domain)
 }

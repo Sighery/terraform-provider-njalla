@@ -329,7 +329,7 @@ resource njalla_record_a test_empty_name {
 func testAccCheckRecordAInvalidTTL() string {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 	return fmt.Sprintf(`
-resource njalla_record_a test_empty_name {
+resource njalla_record_a test_invalid_ttl {
   domain = %q
   name = "testacc5-a-invalidttl-name"
   ttl = 999
@@ -341,7 +341,7 @@ resource njalla_record_a test_empty_name {
 func testAccCheckRecordAInvalidContent() string {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 	return fmt.Sprintf(`
-resource njalla_record_a test_empty_name {
+resource njalla_record_a test_invalid_content {
   domain = %q
   name = "testacc6-a-invalidcontent-name"
   ttl = 10800
