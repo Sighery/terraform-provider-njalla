@@ -25,6 +25,7 @@ func Provider() *schema.Provider {
 			"njalla_record_cname": resourceRecordCNAME(),
 			"njalla_record_caa": resourceRecordCAA(),
 			"njalla_record_ptr": resourceRecordPTR(),
+			"njalla_record_ns": resourceRecordNS(),
 		},
 		ConfigureFunc: configureProvider,
 	}
