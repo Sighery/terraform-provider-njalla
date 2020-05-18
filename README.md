@@ -67,6 +67,7 @@ That means that currently only the following resources are implemented:
 * PTR record
 * NS record
 * TLSA record
+* NAPTR record
 
 If you have a need for any other resource, please feel free to contribute to
 both the `gonjalla` and this repository.
@@ -298,6 +299,29 @@ resource njalla_record_tlsa example-tlsa {
 * `content` - (Required) Content for the record. Value must follow
   [RFC 6698][]'s syntax from sections 2 and 7.
 
+### Record NAPTR
+
+#### Basic
+
+```terraform
+resource njalla_record_naptr example-naptr {
+  domain = "example.com"
+  name = "@"
+  ttl = 10800
+  content = "100 10 \"S\" \"SIP+D2U\" \"!^.*$!sip:customer-service@example.com!\" _sip._udp.example.com."
+}
+```
+
+#### Argument Reference
+
+* `domain` - (Required) Specifies the domain this record will be applied to.
+  Changing this forces a new resource to be created.
+* `name` - (Optional) Name for the record. Default is `@`.
+* `ttl` - (Required) TTL for the record. Value must be one of
+  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
+* `content` - (Required) Content for the record. Value must follow
+  [RFC 2915][]'s syntax from section 2.
+
 ### Importing existing resources
 
 Currently all the available resources implement the import functionality.
@@ -436,6 +460,7 @@ TF_ACC=true go test -v ./...
 [gonjalla variable ValidPriority]: https://pkg.go.dev/github.com/Sighery/gonjalla?tab=doc#pkg-variables
 [RFC 8659]: https://tools.ietf.org/html/rfc8659
 [RFC 6698]: https://tools.ietf.org/html/rfc6698
+[RFC 2915]: https://tools.ietf.org/html/rfc2915
 [Terraform import]: https://www.terraform.io/docs/import/usage.html
 [Terraform import state only limitation]: https://www.terraform.io/docs/import/index.html#currently-state-only
 [`resource_record_txt.go`]: njalla/resource_record_txt.go

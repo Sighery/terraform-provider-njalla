@@ -27,6 +27,7 @@ func Provider() *schema.Provider {
 			"njalla_record_ptr": resourceRecordPTR(),
 			"njalla_record_ns": resourceRecordNS(),
 			"njalla_record_tlsa": resourceRecordTLSA(),
+			"njalla_record_naptr": resourceRecordNAPTR(),
 		},
 		ConfigureFunc: configureProvider,
 	}
