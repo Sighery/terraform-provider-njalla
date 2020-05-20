@@ -6,11 +6,23 @@ on:
       - "v*"
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
 
       - name: Run acceptance and unit tests
         env:
@@ -19,20 +31,20 @@ jobs:
           NJALLA_API_TOKEN: ${{ secrets.NJALLA_API_TOKEN }}
         run: go test -v ./...
 
+  version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - uses: actions/checkout@v2
+
       - name: Get version
         id: get_version
         run: |
           echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Build provider
-        run: >
-          go build -o
-          terraform-provider-njalla_${{ steps.get_version.outputs.VERSION }}
-
-      - name: Build release tarball
-        run: >
-          tar -czf ${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
-          terraform-provider-njalla_v* LICENSE README.md
 
       - name: Create release
         id: create_release
@@ -42,20 +54,84 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: false
+          draft: true
           prerelease: >
             ${{ contains(github.ref, 'alpha') ||
                 contains(github.ref, 'beta') }}
 
-      - name: Upload Release Asset
-        id: upload_release_asset
+  build:
+    needs: [test, version]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      max-parallel: 0
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            arch: linux_amd64
+
+          - os: windows-latest
+            arch: windows_amd64
+
+          - os: macos-latest
+            arch: darwin_amd64
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+
+      - name: Build ${{ matrix.arch }} provider
+        run: >
+          go build -o
+          terraform-provider-njalla_${{ needs.version.outputs.version }}
+
+      - name: Build ${{ matrix.arch }} release tarball
+        uses: master-atul/tar-action@v1.0.2
+        with:
+          command: c
+          cwd: ./
+          files: |
+            ./terraform-provider-njalla_${{ needs.version.outputs.version }}
+            ./LICENSE
+            ./README.md
+          outPath:
+            ${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
+
+      - name: Upload ${{ matrix.arch }} release asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.version.outputs.upload_url }}
           asset_path: |
-            ./${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
+            ./${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
           asset_name: |
-            ${{ steps.get_version.outputs.VERSION }}_linux_amd64.tar.gz
+            ${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
           asset_content_type: application/gzip
+
+  publish:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install hub
+        shell: bash
+        run: >
+          curl -fsSL https://github.com/github/hub/raw/master/script/get
+          | bash -s 2.14.1
+
+      - name: Publish draft release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_version: ${{ needs.version.outputs.version }}
+        run: |
+          bin/hub release edit --draft=false -m "" ${{ env.release_version }}
