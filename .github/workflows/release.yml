@@ -131,7 +131,7 @@ jobs:
       - name: Publish draft release
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           release_version: ${{ needs.version.outputs.version }}
         run: |
           bin/hub release edit --draft=false -m "" ${{ env.release_version }}
