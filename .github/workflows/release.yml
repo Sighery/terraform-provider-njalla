@@ -31,52 +31,9 @@ jobs:
           NJALLA_API_TOKEN: ${{ secrets.NJALLA_API_TOKEN }}
         run: go test -v ./...
 
-  version:
+  release:
+    needs: [test]
     runs-on: ubuntu-latest
-
-    outputs:
-      version: ${{ steps.get_version.outputs.VERSION }}
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Get version
-        id: get_version
-        run: |
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: true
-          prerelease: >
-            ${{ contains(github.ref, 'alpha') ||
-                contains(github.ref, 'beta') }}
-
-  build:
-    needs: [test, version]
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      max-parallel: 0
-
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            arch: linux_amd64
-
-          - os: windows-latest
-            arch: windows_amd64
-
-          - os: macos-latest
-            arch: darwin_amd64
 
     steps:
       - uses: actions/checkout@v2
@@ -86,52 +43,10 @@ jobs:
         with:
           go-version: 1.14
 
-      - name: Build ${{ matrix.arch }} provider
-        run: >
-          go build -o
-          terraform-provider-njalla_${{ needs.version.outputs.version }}
-
-      - name: Build ${{ matrix.arch }} release tarball
-        uses: master-atul/tar-action@v1.0.2
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
         with:
-          command: c
-          cwd: ./
-          files: |
-            ./terraform-provider-njalla_${{ needs.version.outputs.version }}
-            ./LICENSE
-            ./README.md
-          outPath:
-            ${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
-
-      - name: Upload ${{ matrix.arch }} release asset
-        uses: actions/upload-release-asset@v1
+          version: latest
+          args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.version.outputs.upload_url }}
-          asset_path: |
-            ./${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
-          asset_name: |
-            ${{ needs.version.outputs.version }}_${{ matrix.arch }}.tar.gz
-          asset_content_type: application/gzip
-
-  publish:
-    needs: [version, build]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install hub
-        shell: bash
-        run: >
-          curl -fsSL https://github.com/github/hub/raw/master/script/get
-          | bash -s 2.14.1
-
-      - name: Publish draft release
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-          release_version: ${{ needs.version.outputs.version }}
-        run: |
-          bin/hub release edit --draft=false -m "" ${{ env.release_version }}
