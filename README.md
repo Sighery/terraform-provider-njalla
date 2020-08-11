@@ -12,368 +12,35 @@ the `gonjalla` package.
 
 ## Installing
 
-Currently this provider isn't available in any distribution's repositories.
-
-### Arch Linux (and derivatives)
-
-Even though this package isn't in the official Arch Linux repositories (nor
-the AUR), I maintain my own PKGBUILD and the compiled packages are in my Arch
-Linux repository. More information in the
-[terraform-provider-njalla-pkgbuild repository][terraform-provider-njalla-pkgbuild].
-
-### Source
-
-Make sure you have [Go][Golang] installed.
-
-```bash
-go build -o terraform-provider-njalla_v0.1.0
-# Third-party Terraform plugins must be installed to this location
-mkdir -p ~/.terraform.d/plugins
-mv terraform-provider-njalla_v0.1.0 ~/.terraform.d/plugins/.
-```
-
-### Releases
-
-There's a [Github Action set up to handle releases][Action Release] on tag
-pushes. This Action currently builds and publishes the following binaries:
-
-* `linux_amd64`
-
-If you happen to run a system the Action currently builds for, you can go into
-the [Releases tab][terraform-provider-njalla Releases] and download the
-`.tar.gz` file for your system. Inside you'll find the built binary, along
-with the LICENSE and README.
-
-```bash
-tar -xvf v0.1.0_linux_amd64.tar.gz
-# Third-party Terraform plugins must be installed to this location
-mkdir -p ~/.terraform.d/plugins
-mv terraform-provider-njalla_v0.1.0 ~/.terraform.d/plugins/.
-```
-
----
-
-## Limitations
-
-This provider only offers as much as is implemented in the `gonjalla` package.
-That means that currently only the following resources are implemented:
-
-* A record
-* AAAA record
-* TXT record
-* MX record
-* CNAME record
-* CAA record
-* PTR record
-* NS record
-* TLSA record
-* NAPTR record
-
-If you have a need for any other resource, please feel free to contribute to
-both the `gonjalla` and this repository.
-
-## Usage
-
-### Setting up the provider
-
-The Njalla API uses a token you can generate from the settings page. This
-token can be set up in two ways:
-
-#### Terraform configuration
-
-On your `config.tf` (name just a convention) file:
+Starting from Terraform v0.13, there's now a
+[registry for providers][Terraform providers registry], where 
+[this provider gets uploaded to][Sighery/njalla registry]. To use in your
+Terraform project:
 
 ```terraform
-provider njalla {
-  api_token = "api-token-here"
+terraform {
+  required_version = ">= 0.13"
+
+  required_providers {
+    njalla = {
+      source  = "Sighery/njalla"
+      version = "~> 0.9.0"
+    }
+  }
 }
 ```
 
-#### Environment variables
+With this, Terraform will now take care of finding the relevant provider in
+the registry, and download it. After that, it can be configured
+(`provider njalla {}` block) and used throughout the project.
 
-Or through the use of the environment variable `NJALLA_API_TOKEN`. If this
-environment variable is set you don't need to set up the `njalla` provider in
-your Terraform files, it will be automatically picked up when initialising the
-code.
 
-### Record A
+## Documentation
 
-#### Basic
-
-```terraform
-resource njalla_record_a example-a {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "138.201.81.199"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) IPv4 address for the record.
-
-### Record AAAA
-
-#### Basic
-
-```terraform
-resource njalla_record_aaaa example-aaaa {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "2a01:4f8:172:1d86::1"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) IPv6 address for the record.
-
-### Record TXT
-
-#### Basic
-
-```terraform
-resource njalla_record_txt example-txt {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "example-content"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record.
-
-### Record MX
-
-#### Basic
-
-```terraform
-resource njalla_record_mx example-mx {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  priority = 10
-  content = "example-content"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `priority` - (Required) Priority for the record. Value must be one of
-  [gonjalla `ValidPriority`][gonjalla variable ValidPriority].
-* `content` - (Required) Content for the record.
-
-### Record CNAME
-
-#### Basic
-
-```terraform
-resource njalla_record_cname example-cname {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "example-website.com"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record.
-
-### Record CAA
-
-#### Basic
-
-```terraform
-resource njalla_record_caa example-caa {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "example-content"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record. Value must follow the
-  [RFC 8659][]'s syntax from point 4.
-
-### Record PTR
-
-#### Basic
-
-```terraform
-resource njalla_record_ptr example-ptr {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "example-content"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record.
-
-### Record NS
-
-#### Basic
-
-```terraform
-resource njalla_record_ns example-ns {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "example-content"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Required) Name for the record.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record.
-
-### Record TLSA
-
-#### Basic
-
-```terraform
-resource njalla_record_tlsa example-tlsa {
-  domain = "example.com"
-  name = "example-name"
-  ttl = 10800
-  content = "0 0 1 d2abde240d7cd3ee6b4b28c54df034b9"
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record. Value must follow
-  [RFC 6698][]'s syntax from sections 2 and 7.
-
-### Record NAPTR
-
-#### Basic
-
-```terraform
-resource njalla_record_naptr example-naptr {
-  domain = "example.com"
-  name = "@"
-  ttl = 10800
-  content = "100 10 \"S\" \"SIP+D2U\" \"!^.*$!sip:customer-service@example.com!\" _sip._udp.example.com."
-}
-```
-
-#### Argument Reference
-
-* `domain` - (Required) Specifies the domain this record will be applied to.
-  Changing this forces a new resource to be created.
-* `name` - (Optional) Name for the record. Default is `@`.
-* `ttl` - (Required) TTL for the record. Value must be one of
-  [gonjalla `ValidTTL`][gonjalla variable ValidTTL].
-* `content` - (Required) Content for the record. Value must follow
-  [RFC 2915][]'s syntax from section 2.
-
-### Importing existing resources
-
-Currently all the available resources implement the import functionality.
-[More information on Terraform's import][Terraform import].
-
-Imagine the following example: You have set up DNS records manually through
-the Njalla web interface, and you're now trying to manage them through
-Terraform. To do so, first you need to declare the resource in your Terraform
-code:
-
-```terraform
-resource njalla_record_txt example-import {}
-```
-
-As you may have noticed, the declared resource is empty. Your linter might be
-yelling at you now. Ignore it for now and leave it as is.
-
-Now, to import the DNS record you want to attach to this new resource, you'd
-execute the following:
-
-```bash
-# Base command
-terraform import address domain:id
-# Example command
-terraform import njalla_record_txt.example-import example.com:12345
-```
-
-Check the [Terraform import usage][terraform import] on how to figure out the
-`address` positional argument. It will depend on your Terraform declaration
-and where have you defined your resources.
-
-The `domain:id` bit is the important part, and specific to this provider.
-Since records are attached to a given domain, to import a record into
-Terraform we need both the Njalla ID of the record, and the domain it's
-attached to.
-
-#### Import only updates the State file
-
-**Please note**: After executing this command, you might notice your Terraform
-code hasn't changed in the slightest. This is a
-[known limitation of Terraform][Terraform import state only limitation] as of
-now. The State file will be updated to have your imported resource, but the
-Terraform code will look just the same.
-
-Fill in the resource manually now, you can use the data in the State file to
-know what to type in the Terraform code. If you don't, on your next execution
-Terraform will try to remove or update the resource.
-
-Even with this limitation, this is still useful for letting Terraform know
-that it can go ahead and manage an already existing resource, without having
-to resort to manually deleting the resource and recreating it with Terraform
-for it to know it can manage it now.
+The documentation is
+[rendered online in the Terraform Registry][rendered documentation], generated
+from the files in the [`docs/`][] directory, where you can render the Markdown
+files locally to read them as well.
 
 ---
 
@@ -450,19 +117,30 @@ export NJALLA_TESTACC_DOMAIN="testdomain.com"
 TF_ACC=true go test -v ./...
 ```
 
+### Releasing
+
+There's a [Github Action set up to handle releases][Action Release] on tag
+pushes. This action then makes use of [GoReleaser][] to cross-compile to
+different platforms. GoReleaser is also used to create a checksums file, and
+create a new draft GitHub release.
+
+From there, I'll download the checksums file, sign it with the GPG key linked
+to this provider, and upload the signature file back into the release before
+publishing it. Once published, the Registry website picks up the new release
+automatically.
+
+All providers in the registry must have a linked GPG key, and all the releases
+for that provider must contain a signature file of the checksum signed by that
+configured GPG key.
+[More information here][provider signing key documentation].
+
 [Njalla]: https://njal.la
 [Njalla API]: https://njal.la/api/
 [gonjalla package]: https://github.com/Sighery/gonjalla
-[terraform-provider-njalla-pkgbuild]: https://github.com/Sighery/terraform-provider-njalla-pkgbuild
-[Golang]: https://golang.org/
-[installing Terraform plugins]: https://www.terraform.io/docs/plugins/basics.html#installing-plugins
-[gonjalla variable ValidTTL]: https://pkg.go.dev/github.com/Sighery/gonjalla?tab=doc#pkg-variables
-[gonjalla variable ValidPriority]: https://pkg.go.dev/github.com/Sighery/gonjalla?tab=doc#pkg-variables
-[RFC 8659]: https://tools.ietf.org/html/rfc8659
-[RFC 6698]: https://tools.ietf.org/html/rfc6698
-[RFC 2915]: https://tools.ietf.org/html/rfc2915
-[Terraform import]: https://www.terraform.io/docs/import/usage.html
-[Terraform import state only limitation]: https://www.terraform.io/docs/import/index.html#currently-state-only
+[Terraform providers registry]: https://registry.terraform.io/browse/providers
+[Sighery/njalla registry]: https://registry.terraform.io/providers/Sighery/njalla
+[rendered documentation]: https://registry.terraform.io/providers/Sighery/njalla/latest/docs
+[`docs/`]: docs/
 [`resource_record_txt.go`]: njalla/resource_record_txt.go
 [`provider.go`]: njalla/provider.go
 [Terraform provider acceptance tests documentation]: https://www.terraform.io/docs/extend/testing/acceptance-tests/index.html
@@ -470,3 +148,5 @@ TF_ACC=true go test -v ./...
 [Action Test]: .github/workflows/test.yml
 [Action Release]: .github/workflows/release.yml
 [terraform-provider-njalla releases]: https://github.com/Sighery/terraform-provider-njalla/releases
+[GoReleaser]: https://goreleaser.com/
+[provider signing key documentation]: https://www.terraform.io/docs/registry/providers/publishing.html#preparing-and-adding-a-signing-key
