@@ -16,7 +16,7 @@ resource njalla_record_ns example-ns {
 ## Argument Reference
 
 * `domain` - (Required) Specifies the domain this record will be applied to.
-* `name` - (Optional) Name for the record. Default is `@`.
+* `name` - (Optional) Name for the record.
 * `ttl` - (Required) TTL for the record. Value must be one of
   [gonjalla's `ValidTTL`][gonjalla variable ValidTTL].
 * `content` - (Required) Content for the record.

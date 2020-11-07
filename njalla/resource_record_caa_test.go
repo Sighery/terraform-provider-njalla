@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/Sighery/gonjalla"
 )
@@ -15,7 +15,7 @@ import (
 func TestAccRecordCAA_Create(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -51,7 +51,7 @@ func TestAccRecordCAA_Create(t *testing.T) {
 func TestAccRecordCAA_Update(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -111,7 +111,7 @@ func TestAccRecordCAA_Update(t *testing.T) {
 func TestAccRecordCAA_Import(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -138,7 +138,7 @@ func TestAccRecordCAA_EmptyName(t *testing.T) {
 	// With an empty name field it should get the `DefaultFunc` value `@`
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -172,7 +172,7 @@ func TestAccRecordCAA_EmptyName(t *testing.T) {
 func TestAccRecordCAA_InvalidTTL(t *testing.T) {
 	expectedErr := regexp.MustCompile("expected ttl to be one of .+, got 999")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -188,7 +188,7 @@ func TestAccRecordCAA_InvalidTTL(t *testing.T) {
 func TestAccRecordCAA_InvalidContent(t *testing.T) {
 	expectedErr := regexp.MustCompile("value must follow RFC 8659")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,
@@ -206,7 +206,7 @@ func TestAccRecordCAA_InvalidContentFlagTooBig(t *testing.T) {
 		"flag must be between 0 and 255: RFC 8659 4.1.1",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordCAADestroy,

@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/Sighery/gonjalla"
 )
@@ -15,7 +15,7 @@ import (
 func TestAccRecordNS_Create(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNSDestroy,
@@ -51,7 +51,7 @@ func TestAccRecordNS_Create(t *testing.T) {
 func TestAccRecordNS_Update(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNSDestroy,
@@ -111,7 +111,7 @@ func TestAccRecordNS_Update(t *testing.T) {
 func TestAccRecordNS_Import(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNSDestroy,
@@ -137,7 +137,7 @@ func TestAccRecordNS_Import(t *testing.T) {
 func TestAccRecordNS_InvalidTTL(t *testing.T) {
 	expectedErr := regexp.MustCompile("expected ttl to be one of .+, got 999")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNSDestroy,

@@ -1,27 +1,30 @@
 package njalla
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/Sighery/gonjalla"
 )
 
 func resourceRecordAAAA() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceRecordAAAACreate,
-		Read:   resourceRecordAAAARead,
-		Update: resourceRecordAAAAUpdate,
-		Delete: resourceRecordAAAADelete,
+		CreateContext: resourceRecordAAAACreate,
+		ReadContext:   resourceRecordAAAARead,
+		UpdateContext: resourceRecordAAAAUpdate,
+		DeleteContext: resourceRecordAAAADelete,
 
 		Schema: map[string]*schema.Schema{
 			"domain": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Specifies the domain this record will be applied to.",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -29,26 +32,31 @@ func resourceRecordAAAA() *schema.Resource {
 				DefaultFunc: func() (interface{}, error) {
 					return "@", nil
 				},
+				Description: "Name for the record.",
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
 				Required:     true,
+				Description:  "TTL for the record.",
 				ValidateFunc: validation.IntInSlice(gonjalla.ValidTTL),
 			},
 			"content": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "IPv6 address for the record.",
 				ValidateFunc: validation.IsIPv6Address,
 			},
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: resourceRecordAAAAImport,
+			StateContext: resourceRecordAAAAImport,
 		},
 	}
 }
 
-func resourceRecordAAAACreate(d *schema.ResourceData, m interface{}) error {
+func resourceRecordAAAACreate(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -62,26 +70,27 @@ func resourceRecordAAAACreate(d *schema.ResourceData, m interface{}) error {
 
 	saved, err := gonjalla.AddRecord(config.Token, domain, record)
 	if err != nil {
-		return fmt.Errorf("Adding record failed: %s", err.Error())
+		return diag.FromErr(err)
 	}
 
-	d.SetId(fmt.Sprint(saved.ID))
+	d.SetId(strconv.Itoa(saved.ID))
 
-	return resourceRecordAAAARead(d, m)
-
+	return resourceRecordAAAARead(ctx, d, m)
 }
 
-func resourceRecordAAAARead(d *schema.ResourceData, m interface{}) error {
+func resourceRecordAAAARead(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
 	id, _ := strconv.Atoi(d.Id())
 
+	var diags diag.Diagnostics
+
 	records, err := gonjalla.ListRecords(config.Token, domain)
 	if err != nil {
-		return fmt.Errorf(
-			"Reading records for domain %s failed: %s", domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
 	for _, record := range records {
@@ -90,15 +99,17 @@ func resourceRecordAAAARead(d *schema.ResourceData, m interface{}) error {
 			d.Set("ttl", record.TTL)
 			d.Set("content", record.Content)
 
-			return nil
+			return diags
 		}
 	}
 
 	d.SetId("")
-	return nil
+	return diags
 }
 
-func resourceRecordAAAAUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceRecordAAAAUpdate(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -114,16 +125,15 @@ func resourceRecordAAAAUpdate(d *schema.ResourceData, m interface{}) error {
 
 	err := gonjalla.EditRecord(config.Token, domain, updateRecord)
 	if err != nil {
-		return fmt.Errorf(
-			"Updating record %d for domain %s failed: %s",
-			id, domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
-	return resourceRecordAAAARead(d, m)
+	return resourceRecordAAAARead(ctx, d, m)
 }
 
-func resourceRecordAAAADelete(d *schema.ResourceData, m interface{}) error {
+func resourceRecordAAAADelete(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -131,17 +141,15 @@ func resourceRecordAAAADelete(d *schema.ResourceData, m interface{}) error {
 
 	err := gonjalla.RemoveRecord(config.Token, domain, id)
 	if err != nil {
-		return fmt.Errorf(
-			"Deleting record %d from domain %s failed: %s",
-			id, domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
 
 func resourceRecordAAAAImport(
-	d *schema.ResourceData, m interface{},
+	ctx context.Context, d *schema.ResourceData, m interface{},
 ) ([]*schema.ResourceData, error) {
 	domain, id, err := parseImportID(d.Id())
 	if err != nil {

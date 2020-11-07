@@ -1,28 +1,31 @@
 package njalla
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/Sighery/gonjalla"
 )
 
 func resourceRecordTLSA() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceRecordTLSACreate,
-		Read:   resourceRecordTLSARead,
-		Update: resourceRecordTLSAUpdate,
-		Delete: resourceRecordTLSADelete,
+		CreateContext: resourceRecordTLSACreate,
+		ReadContext:   resourceRecordTLSARead,
+		UpdateContext: resourceRecordTLSAUpdate,
+		DeleteContext: resourceRecordTLSADelete,
 
 		Schema: map[string]*schema.Schema{
 			"domain": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Specifies the domain this record will be applied to.",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -30,26 +33,31 @@ func resourceRecordTLSA() *schema.Resource {
 				DefaultFunc: func() (interface{}, error) {
 					return "@", nil
 				},
+				Description: "Name for the record.",
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
 				Required:     true,
+				Description:  "TTL for the record.",
 				ValidateFunc: validation.IntInSlice(gonjalla.ValidTTL),
 			},
 			"content": {
 				Type:         schema.TypeString,
 				Required:     true,
+				Description:  "Content for the record.",
 				ValidateFunc: validateTLSAContent,
 			},
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: resourceRecordTLSAImport,
+			StateContext: resourceRecordTLSAImport,
 		},
 	}
 }
 
-func resourceRecordTLSACreate(d *schema.ResourceData, m interface{}) error {
+func resourceRecordTLSACreate(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -63,26 +71,28 @@ func resourceRecordTLSACreate(d *schema.ResourceData, m interface{}) error {
 
 	saved, err := gonjalla.AddRecord(config.Token, domain, record)
 	if err != nil {
-		return fmt.Errorf("Adding record failed: %s", err.Error())
+		return diag.FromErr(err)
 	}
 
-	d.SetId(fmt.Sprint(saved.ID))
+	d.SetId(strconv.Itoa(saved.ID))
 
-	return resourceRecordTLSARead(d, m)
+	return resourceRecordTLSARead(ctx, d, m)
 
 }
 
-func resourceRecordTLSARead(d *schema.ResourceData, m interface{}) error {
+func resourceRecordTLSARead(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
 	id, _ := strconv.Atoi(d.Id())
 
+	var diags diag.Diagnostics
+
 	records, err := gonjalla.ListRecords(config.Token, domain)
 	if err != nil {
-		return fmt.Errorf(
-			"Reading records for domain %s failed: %s", domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
 	for _, record := range records {
@@ -91,15 +101,17 @@ func resourceRecordTLSARead(d *schema.ResourceData, m interface{}) error {
 			d.Set("ttl", record.TTL)
 			d.Set("content", record.Content)
 
-			return nil
+			return diags
 		}
 	}
 
 	d.SetId("")
-	return nil
+	return diags
 }
 
-func resourceRecordTLSAUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceRecordTLSAUpdate(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -115,16 +127,15 @@ func resourceRecordTLSAUpdate(d *schema.ResourceData, m interface{}) error {
 
 	err := gonjalla.EditRecord(config.Token, domain, updateRecord)
 	if err != nil {
-		return fmt.Errorf(
-			"Updating record %d for domain %s failed: %s",
-			id, domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
-	return resourceRecordTLSARead(d, m)
+	return resourceRecordTLSARead(ctx, d, m)
 }
 
-func resourceRecordTLSADelete(d *schema.ResourceData, m interface{}) error {
+func resourceRecordTLSADelete(
+	ctx context.Context, d *schema.ResourceData, m interface{},
+) diag.Diagnostics {
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
@@ -132,17 +143,15 @@ func resourceRecordTLSADelete(d *schema.ResourceData, m interface{}) error {
 
 	err := gonjalla.RemoveRecord(config.Token, domain, id)
 	if err != nil {
-		return fmt.Errorf(
-			"Deleting record %d from domain %s failed: %s",
-			id, domain, err.Error(),
-		)
+		return diag.FromErr(err)
 	}
 
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
 
 func resourceRecordTLSAImport(
-	d *schema.ResourceData, m interface{},
+	ctx context.Context, d *schema.ResourceData, m interface{},
 ) ([]*schema.ResourceData, error) {
 	domain, id, err := parseImportID(d.Id())
 	if err != nil {

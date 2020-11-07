@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/Sighery/gonjalla"
 )
@@ -15,7 +15,7 @@ import (
 func TestAccRecordNAPTR_Create(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -51,7 +51,7 @@ func TestAccRecordNAPTR_Create(t *testing.T) {
 func TestAccRecordNAPTR_Update(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -111,7 +111,7 @@ func TestAccRecordNAPTR_Update(t *testing.T) {
 func TestAccRecordNAPTR_Import(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -138,7 +138,7 @@ func TestAccRecordNAPTR_EmptyName(t *testing.T) {
 	// With an empty name field it should get the `DefaultFunc` value `@`
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -172,7 +172,7 @@ func TestAccRecordNAPTR_EmptyName(t *testing.T) {
 func TestAccRecordNAPTR_InvalidTTL(t *testing.T) {
 	expectedErr := regexp.MustCompile("expected ttl to be one of .+, got 999")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -190,7 +190,7 @@ func TestAccRecordNAPTR_InvalidContent(t *testing.T) {
 		`expected 6\+ arguments, .* Check RFC 2915`,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -208,7 +208,7 @@ func TestAccRecordNAPTR_StringOrder(t *testing.T) {
 		"expected Order field to be int",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,
@@ -226,7 +226,7 @@ func TestAccRecordNAPTR_StringPreference(t *testing.T) {
 		"expected Preference field to be int",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordNAPTRDestroy,

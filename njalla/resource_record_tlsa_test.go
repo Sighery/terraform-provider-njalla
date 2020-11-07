@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/Sighery/gonjalla"
 )
@@ -15,7 +15,7 @@ import (
 func TestAccRecordTLSA_Create(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -51,7 +51,7 @@ func TestAccRecordTLSA_Create(t *testing.T) {
 func TestAccRecordTLSA_Update(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -111,7 +111,7 @@ func TestAccRecordTLSA_Update(t *testing.T) {
 func TestAccRecordTLSA_Import(t *testing.T) {
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -138,7 +138,7 @@ func TestAccRecordTLSA_EmptyName(t *testing.T) {
 	// With an empty name field it should get the `DefaultFunc` value `@`
 	domain := os.Getenv("NJALLA_TESTACC_DOMAIN")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -172,7 +172,7 @@ func TestAccRecordTLSA_EmptyName(t *testing.T) {
 func TestAccRecordTLSA_InvalidTTL(t *testing.T) {
 	expectedErr := regexp.MustCompile("expected ttl to be one of .+, got 999")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -190,7 +190,7 @@ func TestAccRecordTLSA_InvalidContent(t *testing.T) {
 		`expected 4 arguments, .* Check RFC 6698`,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -208,7 +208,7 @@ func TestAccRecordTLSA_StringCertificateUsage(t *testing.T) {
 		"expected Certificate Usage field to be int",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -226,7 +226,7 @@ func TestAccRecordTLSA_InvalidIntCertificateUsage(t *testing.T) {
 		"expected Certificate Usage field to be between 0 and 255",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -244,7 +244,7 @@ func TestAccRecordTLSA_StringSelector(t *testing.T) {
 		"expected Selector field to be int",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -262,7 +262,7 @@ func TestAccRecordTLSA_InvalidIntSelector(t *testing.T) {
 		"expected Selector field to be between 0 and 255",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -280,7 +280,7 @@ func TestAccRecordTLSA_StringMatchingType(t *testing.T) {
 		"expected Matching Type field to be int",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
@@ -298,7 +298,7 @@ func TestAccRecordTLSA_InvalidIntMatchingType(t *testing.T) {
 		"expected Matching Type field to be between 0 and 255",
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordTLSADestroy,
