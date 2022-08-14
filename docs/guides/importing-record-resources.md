@@ -43,4 +43,8 @@ Since records are attached to a given domain, to import a record into
 Terraform we need both the Njalla ID of the record, and the domain it's
 attached to.
 
+The `id` bit is the ID the record has in Njalla's DB. This, as of writing, can
+only be fetched from the `list-records` API call, which will contain the value
+under the key `id` for each record.
+
 [Terraform import]: https://www.terraform.io/docs/import/usage.html
