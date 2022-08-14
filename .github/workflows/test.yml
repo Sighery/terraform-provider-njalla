@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   test:
@@ -15,20 +15,18 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          stable: true
-          go-version: ^1.15
+          go-version: "^1.17"
+          cache: true
 
-      - uses: actions/cache@v2.1.7
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          terraform_version: "1.2.3"
 
       - name: Run acceptance and unit tests
         env:
