@@ -7,8 +7,8 @@ import (
 
 func TestParseImportIDExpected(t *testing.T) {
 	expectedDomain := "testing.com"
-	expectedID := 1234
-	input := fmt.Sprintf("%s:%d", expectedDomain, expectedID)
+	expectedID := "1234"
+	input := fmt.Sprintf("%s:%s", expectedDomain, expectedID)
 
 	resultDomain, resultID, err := parseImportID(input)
 	if err != nil {
@@ -24,7 +24,7 @@ func TestParseImportIDExpected(t *testing.T) {
 
 	if resultID != expectedID {
 		t.Fatalf(
-			"Result ID %d doesn't match expected ID %d",
+			"Result ID %s doesn't match expected ID %s",
 			resultID, expectedID,
 		)
 	}
@@ -43,17 +43,6 @@ func TestParseImportIDMissingIDWithColon(t *testing.T) {
 func TestParseImportIDMissingIDWithoutColon(t *testing.T) {
 	expectedDomain := "testing.com"
 	input := fmt.Sprintf("%s", expectedDomain)
-
-	_, _, err := parseImportID(input)
-	if err == nil {
-		t.Fatal("Unexpected success")
-	}
-}
-
-func TestParseImportIDInvalidID(t *testing.T) {
-	expectedDomain := "testing.com"
-	expectedID := "invalid-id"
-	input := fmt.Sprintf("%s:%s", expectedDomain, expectedID)
 
 	_, _, err := parseImportID(input)
 	if err == nil {

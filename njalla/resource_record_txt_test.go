@@ -203,8 +203,7 @@ func testAccCheckRecordTXTDestroy(s *terraform.State) error {
 		}
 
 		for _, record := range records {
-			strID := fmt.Sprint(record.ID)
-			if strID == rs.Primary.ID {
+			if record.ID == rs.Primary.ID {
 				return fmt.Errorf(
 					"Record %s still exists in domain %s",
 					rs.Primary.ID, domain,
@@ -237,8 +236,7 @@ func testAccCheckRecordTXTExists(resource string) resource.TestCheckFunc {
 		}
 
 		for _, record := range records {
-			strID := fmt.Sprint(record.ID)
-			if strID == rs.Primary.ID {
+			if record.ID == rs.Primary.ID {
 				return nil
 			}
 		}

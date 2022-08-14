@@ -3,7 +3,6 @@ package njalla
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,7 +68,7 @@ func resourceRecordNSCreate(
 		return diag.FromErr(err)
 	}
 
-	d.SetId(strconv.Itoa(saved.ID))
+	d.SetId(saved.ID)
 
 	return resourceRecordNSRead(ctx, d, m)
 
@@ -81,7 +80,6 @@ func resourceRecordNSRead(
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
-	id, _ := strconv.Atoi(d.Id())
 
 	var diags diag.Diagnostics
 
@@ -91,7 +89,7 @@ func resourceRecordNSRead(
 	}
 
 	for _, record := range records {
-		if id == record.ID {
+		if d.Id() == record.ID {
 			d.Set("name", record.Name)
 			d.Set("ttl", record.TTL)
 			d.Set("content", record.Content)
@@ -110,10 +108,9 @@ func resourceRecordNSUpdate(
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
-	id, _ := strconv.Atoi(d.Id())
 
 	updateRecord := gonjalla.Record{
-		ID:      id,
+		ID:      d.Id(),
 		Name:    d.Get("name").(string),
 		Type:    "NS",
 		Content: d.Get("content").(string),
@@ -134,9 +131,8 @@ func resourceRecordNSDelete(
 	config := m.(*Config)
 
 	domain := d.Get("domain").(string)
-	id, _ := strconv.Atoi(d.Id())
 
-	err := gonjalla.RemoveRecord(config.Token, domain, id)
+	err := gonjalla.RemoveRecord(config.Token, domain, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -164,7 +160,7 @@ func resourceRecordNSImport(
 
 	for _, record := range records {
 		if id == record.ID {
-			d.SetId(fmt.Sprintf("%d", id))
+			d.SetId(id)
 			d.Set("domain", domain)
 			d.Set("name", record.Name)
 			d.Set("ttl", record.TTL)
@@ -174,5 +170,5 @@ func resourceRecordNSImport(
 		}
 	}
 
-	return nil, fmt.Errorf("Couldn't find record %d for domain %s", id, domain)
+	return nil, fmt.Errorf("Couldn't find record %s for domain %s", id, domain)
 }
