@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,7 +70,7 @@ func resourceServerCreate(
 	publicKey := d.Get("public_key").(string)
 	months := d.Get("months").(int)
 
-	server, err := gonjalla.AddServer(config.Token, name, instanceType, os, publicKey, months)
+	_, err := gonjalla.AddServer(config.Token, name, instanceType, os, publicKey, months)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -83,27 +84,34 @@ func resourceServerRead(
 	config := m.(*Config)
 
 	var diags diag.Diagnostics
-
-	servers, err := gonjalla.ListServers(config.Token)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
+	retryCount := 0
 	for true {
+
+		servers, err := gonjalla.ListServers(config.Token)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
 		for _, server := range servers {
-			if d.Id() == server.ID {
-				if len(server.Ips) == 0 {
-					time.Sleep(5 * time.Second)
-					continue
-				}
 
-				d.Set("instance_type", server.Type)
-				d.Set("os", server.Os)
-				d.Set("public_key", server.SSHKey)
-				d.Set("public_ip", server.Ips[0])
-
-				return diags
+			if d.Id() != server.ID {
+				continue
 			}
+
+			if retryCount == 100 {
+				return diag.FromErr(errors.New("The %s server reached the maximum timeout for receiving a public ip address"))
+			} else if len(server.Ips) == 0 {
+				retryCount += 1
+				time.Sleep(5 * time.Second)
+				continue
+			}
+
+			d.Set("instance_type", server.Type)
+			d.Set("os", server.Os)
+			d.Set("public_key", server.SSHKey)
+			d.Set("public_ip", server.Ips[0])
+
+			return diags
 		}
 	}
 
